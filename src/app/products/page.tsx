@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
+import ProductCard from '@/components/ProductCard'
 
 interface Product {
   id: number
@@ -21,7 +22,7 @@ function ProductsContent() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const searchParams = useSearchParams();
   const searchQuery = searchParams?.get('search') || '';
-  
+
   // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
@@ -61,22 +62,31 @@ function ProductsContent() {
 
   // Get unique categories from products
   const categories = ['Semua Produk', ...Array.from(new Set(products.map(p => p.category)))];
-  
+
   const filteredProducts = products.filter(product => {
     // Filter by category
     const categoryMatch = selectedCategory === 'Semua Produk' || product.category === selectedCategory;
-    
+
     // Filter by search query
-    const searchMatch = !searchQuery || 
+    const searchMatch = !searchQuery ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     return categoryMatch && searchMatch;
   });
 
   if (loading) {
-    return <div style={{textAlign: 'center', padding: '3rem'}}>Loading products...</div>;
+    return (
+      <div className="loading-container">
+        <img 
+          src="https://i.pinimg.com/originals/b6/cb/9d/b6cb9d4f07d283faecec75a3613984ff.gif" 
+          alt="Loading..." 
+          className="loading-gif"
+        />
+        <p>Memuat produk...</p>
+      </div>
+    );
   }
 
   return (
@@ -85,9 +95,9 @@ function ProductsContent() {
         <h1 className="products-title">Our Products</h1>
         <p className="products-subtitle">Discover our collection of premium outdoor furniture</p>
       </div>
-      
+
       {searchQuery && (
-        <div style={{textAlign: 'center', padding: '1rem', background: '#f8f9fa', margin: '1rem 2rem', borderRadius: '8px'}}>
+        <div style={{ textAlign: 'center', padding: '1rem', background: '#f8f9fa', margin: '1rem 2rem', borderRadius: '8px' }}>
           <p>Hasil pencarian untuk: <strong>&quot;{searchQuery}&quot;</strong> ({filteredProducts.length} produk ditemukan)</p>
         </div>
       )}
@@ -99,7 +109,7 @@ function ProductsContent() {
         const hasMoreFeatured = featuredProducts.length > 4;
 
         return featuredProducts.length > 0 && (
-          <div style={{padding: '2rem', maxWidth: '1200px', margin: '0 auto'}}>
+          <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
             <div className="featured-header">
               <h2 className="featured-title">
                 Produk Unggulan
@@ -115,58 +125,13 @@ function ProductsContent() {
             </div>
             <div className="products-grid">
               {displayedFeatured.map(product => (
-                <div key={product.id} className="product-card">
-                  <div className="product-image-wrapper">
-                    {product.image ? (
-                      <img src={product.image} alt={product.name} />
-                    ) : (
-                      <div style={{
-                        width: '100%',
-                        height: '200px',
-                        background: '#f0f0f0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#999'
-                      }}>
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <div className="product-info">
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-desc">{product.description}</p>
-                    <div className="product-price">
-                      Rp {product.price.toLocaleString('id-ID')}
-                    </div>
-                    <span style={{
-                      background: '#bfa16a',
-                      color: 'white',
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      fontWeight: 'bold',
-                      display: 'inline-block',
-                      marginTop: '0.5rem'
-                    }}>
-                      UNGGULAN
-                    </span>
-                    <a 
-                      href={`https://wa.me/6285291413603?text=Halo, saya tertarik dengan ${product.name} - Rp ${product.price.toLocaleString('id-ID')}`}
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="wa-product-btn"
-                    >
-                      Order via WhatsApp
-                    </a>
-                  </div>
-                </div>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
         );
       })()}
-      
+
       <div className="products-filter-bar">
         {/* Desktop Category Buttons */}
         <div className="category-btn-group desktop-only">
@@ -183,28 +148,28 @@ function ProductsContent() {
 
         {/* Mobile Category Dropdown */}
         <div className="category-dropdown mobile-only">
-          <button 
+          <button
             className={`category-dropdown-btn ${showCategoryDropdown ? 'open' : ''}`}
             onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
           >
             <span>{selectedCategory}</span>
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
               strokeWidth="2"
             >
-              <circle cx="12" cy="12" r="1"/>
-              <circle cx="19" cy="12" r="1"/>
-              <circle cx="5" cy="12" r="1"/>
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="19" cy="12" r="1" />
+              <circle cx="5" cy="12" r="1" />
             </svg>
           </button>
-          
+
           {showCategoryDropdown && (
             <>
-              <div 
+              <div
                 className="category-dropdown-overlay"
                 onClick={() => setShowCategoryDropdown(false)}
               />
@@ -226,75 +191,18 @@ function ProductsContent() {
           )}
         </div>
       </div>
-      
-      <div style={{padding: '2rem', maxWidth: '1200px', margin: '0 auto'}}>
-        <h2 style={{textAlign: 'center', marginBottom: '2rem', fontSize: '2rem', color: '#333'}}>
+
+      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '2rem', color: '#333' }}>
           {selectedCategory === 'Semua Produk' ? 'Semua Produk' : `Kategori: ${selectedCategory}`}
         </h2>
         <div className="products-grid">
           {filteredProducts.length > 0 ? (
             filteredProducts.map(product => (
-              <div key={product.id} className="product-card">
-                <div className="product-image-wrapper">
-                  {product.image ? (
-                    <img src={product.image} alt={product.name} />
-                  ) : (
-                    <div style={{
-                      width: '100%',
-                      height: '200px',
-                      background: '#f0f0f0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#999'
-                    }}>
-                      No Image
-                    </div>
-                  )}
-                </div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-desc">{product.description}</p>
-                  <div className="product-price">
-                    Rp {product.price.toLocaleString('id-ID')}
-                  </div>
-                  <div style={{display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap'}}>
-                    <span style={{
-                      background: '#e9ecef',
-                      color: '#495057',
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.8rem',
-                      fontWeight: 'bold'
-                    }}>
-                      {product.category}
-                    </span>
-                    {product.featured && (
-                      <span style={{
-                        background: '#bfa16a',
-                        color: 'white',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem',
-                        fontWeight: 'bold'
-                      }}>
-                        UNGGULAN
-                      </span>
-                    )}
-                  </div>
-                  <a 
-                    href={`https://wa.me/6285291413603?text=Halo, saya tertarik dengan ${product.name} - Rp ${product.price.toLocaleString('id-ID')}`}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="wa-product-btn"
-                  >
-                    Order via WhatsApp
-                  </a>
-                </div>
-              </div>
+              <ProductCard key={product.id} product={product} />
             ))
           ) : (
-            <div style={{gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666'}}>
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666' }}>
               <p>Tidak ada produk yang ditemukan {searchQuery && `untuk &quot;${searchQuery}&quot;`}</p>
             </div>
           )}
@@ -306,7 +214,16 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="loading-container">
+        <img 
+          src="https://i.pinimg.com/originals/b6/cb/9d/b6cb9d4f07d283faecec75a3613984ff.gif" 
+          alt="Loading..." 
+          className="loading-gif"
+        />
+        <p>Memuat halaman...</p>
+      </div>
+    }>
       <ProductsContent />
     </Suspense>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Header from '@/components/Header'
 import FooterSimple from '@/components/FooterSimple'
+import ConditionalLayout from '@/components/ConditionalLayout'
 
 export const metadata: Metadata = {
   title: 'ATIGA Furniture - Premium Furniture from Indonesia',
@@ -16,11 +17,9 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body suppressHydrationWarning={true}>
-        <div className="App">
-          <Header />
+        <ConditionalLayout>
           {children}
-          <FooterSimple />
-        </div>
+        </ConditionalLayout>
       </body>
     </html>
   )
