@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,19 +10,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 })
     }
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
+    }
+
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Generate unique filename
-    const timestamp = Date.now()
-    const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+    // Clean filename
+    const filename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     
-    // Save to public/uploads directory
-    const uploadPath = join(process.cwd(), 'public', 'uploads', filename)
-    await writeFile(uploadPath, buffer)
-    
-    // Return the public URL
-    const imageUrl = `/uploads/${filename}`
+    // Upload to Cloudinary
+    const imageUrl = await uploadToCloudinary(buffer, filename)
     
     return NextResponse.json({ 
       success: true, 

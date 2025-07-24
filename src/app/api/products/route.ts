@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 export async function GET() {
   try {
@@ -31,22 +30,27 @@ export async function POST(request: NextRequest) {
     
     if (imageFile && imageFile.size > 0) {
       try {
+        // Validate file type
+        if (!imageFile.type.startsWith('image/')) {
+          return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
+        }
+
+        // Validate file size (max 5MB)
+        if (imageFile.size > 5 * 1024 * 1024) {
+          return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
+        }
+
         const bytes = await imageFile.arrayBuffer()
         const buffer = Buffer.from(bytes)
 
-        // Generate unique filename
-        const timestamp = Date.now()
-        const filename = `${timestamp}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+        // Clean filename
+        const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
-        // Save to public/uploads directory
-        const uploadPath = join(process.cwd(), 'public', 'uploads', filename)
-        await writeFile(uploadPath, buffer)
-        
-        // Set the public URL
-        image = `/uploads/${filename}`
+        // Upload to Cloudinary
+        image = await uploadToCloudinary(buffer, filename)
       } catch (uploadError) {
         console.error('Error uploading file:', uploadError)
-        // Continue without image if upload fails
+        return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
       }
     }
     
