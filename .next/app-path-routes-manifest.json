@@ -1,0 +1,18 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/health/route": "/api/health",
+  "/api/products/[id]/route": "/api/products/[id]",
+  "/api/products/route": "/api/products",
+  "/api/upload/route": "/api/upload",
+  "/favicon.ico/route": "/favicon.ico",
+  "/about/page": "/about",
+  "/admin/page": "/admin",
+  "/admin/dashboard/page": "/admin/dashboard",
+  "/info-order/page": "/info-order",
+  "/materials/page": "/materials",
+  "/page": "/",
+  "/admin/products/page": "/admin/products",
+  "/contact/page": "/contact",
+  "/products/[id]/page": "/products/[id]",
+  "/products/page": "/products"
+}
