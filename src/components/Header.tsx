@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -34,7 +35,7 @@ export default function Header() {
     <header className={`header ${isHomePage ? 'header-transparent' : ''}`}>
       <div className="logo">
         <Link href="/">
-          <img src="/images/atigalogo.png" alt="ATIGA Furniture Logo" className="logo-image" />
+          <Image src="/images/atigalogo.png" alt="ATIGA Furniture Logo" className="logo-image" width={160} height={40} />
         </Link>
       </div>
       <nav className="main-nav">

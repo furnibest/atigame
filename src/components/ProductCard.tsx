@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 
 interface Product {
   id: number
@@ -56,17 +57,18 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
                 <div className="spinner" aria-hidden="true" />
               </div>
             )}
-            <img 
+            <Image
               src={product.image}
               alt={product.name}
-              loading="lazy"
-              decoding="async"
+              width={800}
+              height={600}
+              sizes="(max-width: 768px) 100vw, 400px"
               onLoad={() => setImageLoading(false)}
               onError={() => {
                 setImageLoading(false)
                 setImageError(true)
               }}
-              style={{ display: imageLoading ? 'none' : 'block' }}
+              style={{ display: imageLoading ? 'none' : 'block', width: '100%', height: 'auto' }}
             />
             <div className="product-image-overlay" aria-hidden="true">
               <span className="product-image-cta">Lihat detail</span>

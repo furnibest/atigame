@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { uploadToCloudinary } from '@/lib/cloudinary'
+import { uploadImageToSupabase, deleteImageByPublicUrl, getSupabaseClient } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
@@ -8,11 +7,14 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const product = await prisma.product.findUnique({
-      where: { id: parseInt(id) }
-    })
+    const supabase = getSupabaseClient()
+    const { data: product, error } = await supabase
+      .from('Product')
+      .select('*')
+      .eq('id', parseInt(id))
+      .single()
     
-    if (!product) {
+    if (error || !product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
     
@@ -29,6 +31,12 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
+    const supabase = getSupabaseClient()
+    const { data: existing } = await supabase
+      .from('Product')
+      .select('*')
+      .eq('id', parseInt(id))
+      .single()
     const formData = await request.formData()
     const name = formData.get('name') as string
     const description = formData.get('description') as string
@@ -73,20 +81,33 @@ export async function PUT(
         // Clean filename
         const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
-        // Upload to Cloudinary
-        data.image = await uploadToCloudinary(buffer, filename)
+        // Upload to Supabase Storage
+        const newUrl = await uploadImageToSupabase(buffer, filename, imageFile.type)
+        // Delete old image if exists
+        if (existing?.image) {
+          try { await deleteImageByPublicUrl(existing.image) } catch {}
+        }
+        data.image = newUrl
       } catch (uploadError) {
         console.error('Error uploading file:', uploadError)
         return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
       }
     }
     
-    const updatedProduct = await prisma.product.update({
-      where: { id: parseInt(id) },
-      data
-    })
+    const now = new Date().toISOString()
+    const { data: updated, error } = await supabase
+      .from('Product')
+      .update({ ...data, updatedAt: now })
+      .eq('id', parseInt(id))
+      .select('*')
+      .single()
+
+    if (error) {
+      console.error('Supabase update error:', error)
+      return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
+    }
     
-    return NextResponse.json(updatedProduct)
+    return NextResponse.json(updated)
   } catch (error) {
     console.error('Error updating product:', error)
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
@@ -99,9 +120,23 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    await prisma.product.delete({
-      where: { id: parseInt(id) }
-    })
+    const supabase = getSupabaseClient()
+    const { data: product } = await supabase
+      .from('Product')
+      .select('image')
+      .eq('id', parseInt(id))
+      .single()
+    if (product?.image) {
+      try { await deleteImageByPublicUrl(product.image) } catch {}
+    }
+    const { error } = await supabase
+      .from('Product')
+      .delete()
+      .eq('id', parseInt(id))
+    if (error) {
+      console.error('Supabase delete error:', error)
+      return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
+    }
     
     return NextResponse.json({ message: 'Product deleted' })
   } catch (error) {

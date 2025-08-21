@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadToCloudinary } from '@/lib/cloudinary'
+import { uploadImageToSupabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
     // Clean filename
     const filename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     
-    // Upload to Cloudinary
-    const imageUrl = await uploadToCloudinary(buffer, filename)
+    // Upload to Supabase Storage
+    const imageUrl = await uploadImageToSupabase(buffer, filename, file.type)
     
     return NextResponse.json({ 
       success: true, 

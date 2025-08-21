@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -33,7 +34,14 @@ export default function ProductQuickView({ product, onClose, onViewDetail }: Pro
         <div className="quickview-content">
           <div className="quickview-image">
             {product.image ? (
-              <img src={product.image} alt={product.name} />
+              <Image 
+                src={product.image}
+                alt={product.name}
+                width={800}
+                height={600}
+                sizes="(max-width: 768px) 100vw, 800px"
+                style={{ width: '100%', height: 'auto' }}
+              />
             ) : (
               <div className="no-image-placeholder">No Image</div>
             )}

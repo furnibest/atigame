@@ -1,4 +1,5 @@
 import React from 'react'
+import './info-order.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMoneyCheckAlt, faTruck, faCheckCircle, faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
@@ -53,7 +54,7 @@ export default function InfoOrderPage() {
                 <li><b>Bank BRI</b> a.n. Yayuk Indah Ariyanti - <b>589701021450539</b></li>
               </ul>
               <div className="infoorder-note">
-                * Pastikan transfer ke rekening atas nama PT. Atiga Furniture. Simpan bukti transfer untuk konfirmasi.
+                * Pastikan transfer ke rekening atas nama Yayuk Indah Ariyanti. Simpan bukti transfer untuk konfirmasi.
               </div>
             </div>
 

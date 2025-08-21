@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -143,17 +144,18 @@ export default function ProductDetailPage() {
                     <p>Memuat gambar...</p>
                   </div>
                 )}
-                <img
+                <Image
                   src={product.image}
                   alt={product.name}
-                  loading="lazy"
-                  decoding="async"
+                  width={1000}
+                  height={750}
+                  sizes="(max-width: 768px) 100vw, 800px"
                   onLoad={() => setImageLoading(false)}
                   onError={() => {
                     setImageLoading(false)
                     setImageError(true)
                   }}
-                  style={{ display: imageLoading ? 'none' : 'block' }}
+                  style={{ display: imageLoading ? 'none' : 'block', width: '100%', height: 'auto' }}
                 />
               </div>
             ) : (

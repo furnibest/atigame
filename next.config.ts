@@ -1,9 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  // Remove the experimental suppressHydrationWarning as it's not a valid Next.js config
-  // We're using suppressHydrationWarning directly on components instead
+	reactStrictMode: true,
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: '**.supabase.co',
+				pathname: '/storage/v1/object/public/**',
+			},
+			{
+				protocol: 'https',
+				hostname: 'lh3.googleusercontent.com',
+				pathname: '/**',
+			},
+		],
+	},
 };
 
 export default nextConfig;

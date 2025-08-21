@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faFacebookF, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
@@ -51,7 +52,7 @@ export default function FooterSimple() {
         Atiga Meubel berkomitmen menghadirkan furniture outdoor berkualitas, desain elegan, dan harga terbaik. Kami melayani pemesanan custom, grosir, dan pengiriman ke seluruh Indonesia.
       </div>
       <div className="footer-simple-logo">
-        <img src="/images/atigalogo.png" alt="ATIGA Furniture Logo" />
+        <Image src="/images/atigalogo.png" alt="ATIGA Furniture Logo" width={160} height={40} />
       </div>
       <div className="footer-simple-bottom">
         <span>Jepara, Indonesia</span>

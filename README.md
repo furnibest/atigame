@@ -1,5 +1,47 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Supabase Setup
+
+Environment variables (create `.env`):
+
+```
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+# SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_STORAGE_BUCKET=images
+```
+
+Storage:
+- Create bucket `images` and allow public read or add policy for public read on `/storage/v1/object/public/images/*`.
+
+Database:
+- Buat tabel `Product` di Supabase SQL Editor:
+```
+create table if not exists public."Product" (
+  id serial primary key,
+  name text not null,
+  description text,
+  price double precision default 0,
+  image text,
+  category text default 'Semua Produk',
+  featured boolean default false,
+  "createdAt" timestamptz default now(),
+  "updatedAt" timestamptz default now()
+);
+
+create or replace function public.set_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new."updatedAt" = now();
+  return new;
+end $$;
+
+drop trigger if exists trg_set_updated_at on public."Product";
+create trigger trg_set_updated_at
+before update on public."Product"
+for each row execute function public.set_updated_at();
+```
+
 ## Getting Started
 
 First, run the development server:

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
 
@@ -192,10 +193,13 @@ export default function AdminProducts() {
               onChange={handleChange} 
             />
             {preview && (
-              <img 
+              <Image 
                 src={preview} 
                 alt="preview" 
                 className="img-preview" 
+                width={120}
+                height={120}
+                unoptimized
               />
             )}
           </div>
@@ -229,10 +233,12 @@ export default function AdminProducts() {
                 <tr key={prod.id}>
                   <td>
                     {prod.image ? (
-                      <img 
+                      <Image 
                         src={prod.image} 
                         alt="img" 
                         className="img-thumb" 
+                        width={60}
+                        height={60}
                       />
                     ) : (
                       <div style={{width:60,height:60,background:'#f0f0f0',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:6}}>

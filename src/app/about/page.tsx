@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLeaf, faRecycle, faHandshake } from '@fortawesome/free-solid-svg-icons';
 
@@ -19,7 +20,7 @@ export default function AboutPage() {
               <p>Originating in Jepara—a city renowned as the center of the finest carving and furniture in the archipelago—each ATIGA product is crafted by the skilled hands of local craftsmen who have passed down traditions from generation to generation. We combine traditional values with modern design touches to create timeless pieces.</p>
             </div>
             <div className="about-image">
-              <img src="/images/mejapayung.jpg" alt="Meja Payung ATIGA" />
+              <Image src="/images/mejapayung.jpg" alt="Meja Payung ATIGA" width={800} height={533} />
             </div>
           </div>
         </div>
