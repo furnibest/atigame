@@ -1,6 +1,12 @@
 {
-  "short_name": "Atiga Meubel",
   "name": "Atiga Meubel - Premium Outdoor Furniture",
+  "short_name": "Atiga Meubel",
+  "description": "Premium outdoor furniture collection with modern designs and quality craftsmanship",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0ece3",
+  "theme_color": "#bfa16a",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +16,17 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "categories": ["shopping", "lifestyle"],
+  "lang": "id",
+  "dir": "ltr"
 } 

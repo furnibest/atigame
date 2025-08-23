@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import Image from 'next/image';
+import OptimizedImage from './OptimizedImage';
 
 interface Product {
   id: number;
@@ -34,12 +34,13 @@ export default function ProductQuickView({ product, onClose, onViewDetail }: Pro
         <div className="quickview-content">
           <div className="quickview-image">
             {product.image ? (
-              <Image 
+              <OptimizedImage 
                 src={product.image}
                 alt={product.name}
                 width={800}
                 height={600}
                 sizes="(max-width: 768px) 100vw, 800px"
+                priority
                 style={{ width: '100%', height: 'auto' }}
               />
             ) : (

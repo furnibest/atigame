@@ -16,7 +16,7 @@ interface Product {
 function ProductsContent() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [view] = useState<'grid' | 'compact'>('compact')
+
 
   // Fetch products from API
   useEffect(() => {
@@ -38,6 +38,7 @@ function ProductsContent() {
   }, []);
 
   const featuredProducts = products.filter(p => p.featured)
+  const regularProducts = products.filter(p => !p.featured)
 
   if (loading) {
     return <LoadingSpinner message="Memuat produk..." />
@@ -46,19 +47,33 @@ function ProductsContent() {
   return (
     <>
       <div className="products-hero">
-        <h1 className="products-title">Produk Unggulan</h1>
+        <h1 className="products-title">Koleksi Furniture</h1>
         <p className="products-subtitle">Temukan pilihan terbaik dari koleksi kami</p>
       </div>
 
+      {/* Featured Products Section */}
+      {featuredProducts.length > 0 && (
+        <div style={{ padding: '2rem 0', maxWidth: '1200px', margin: '0 auto' }}>
+          <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>Produk Unggulan</h2>
+          <div className={`products-grid compact`}>
+            {featuredProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All Products Section */}
       <div style={{ padding: '2rem 0', maxWidth: '1200px', margin: '0 auto' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>Semua Produk</h2>
         <div className={`products-grid compact`}>
-          {featuredProducts.length > 0 ? (
-            featuredProducts.map(product => (
+          {regularProducts.length > 0 ? (
+            regularProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))
           ) : (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', color: '#666' }}>
-              <p>Belum ada produk unggulan.</p>
+              <p>Belum ada produk lainnya.</p>
             </div>
           )}
         </div>

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Header from '@/components/Header'
-import FooterSimple from '@/components/FooterSimple'
 import ConditionalLayout from '@/components/ConditionalLayout'
 
 export const metadata: Metadata = {

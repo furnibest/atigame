@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import Image from 'next/image'
+import LazyImage from './LazyImage'
+import { truncateText } from '@/lib/textUtils'
 
 interface Product {
   id: number
@@ -50,29 +51,27 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
       aria-label={`Lihat detail ${product.name}`}
     >
       <div className="product-image-wrapper">
-        {product.image && !imageError ? (
+        {product.image ? (
           <>
-            {imageLoading && (
-              <div className="image-loading-placeholder">
-                <div className="spinner" aria-hidden="true" />
-              </div>
-            )}
-            <Image
+            <LazyImage
               src={product.image}
               alt={product.name}
-              width={800}
-              height={600}
+              width={400}
+              height={300}
               sizes="(max-width: 768px) 100vw, 400px"
+              priority={product.featured}
+              rootMargin="100px"
               onLoad={() => setImageLoading(false)}
               onError={() => {
                 setImageLoading(false)
                 setImageError(true)
               }}
-              style={{ display: imageLoading ? 'none' : 'block', width: '100%', height: 'auto' }}
             />
-            <div className="product-image-overlay" aria-hidden="true">
-              <span className="product-image-cta">Lihat detail</span>
-            </div>
+            {!imageLoading && !imageError && (
+              <div className="product-image-overlay" aria-hidden="true">
+                <span className="product-image-cta">Lihat detail</span>
+              </div>
+            )}
           </>
         ) : (
           <div className="no-image-placeholder">
@@ -83,9 +82,16 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
         {product.description && (
-          <p className="product-desc" aria-label="Deskripsi singkat">
-            {product.description}
-          </p>
+          <div className="product-desc-wrapper">
+            <p className="product-desc" aria-label="Deskripsi singkat">
+              {truncateText(product.description, 120)}
+            </p>
+            {product.description.length > 120 && (
+              <span className="read-more-badge">
+                Baca selengkapnya →
+              </span>
+            )}
+          </div>
         )}
         <div className="product-badges">
           <span className="category-badge">
