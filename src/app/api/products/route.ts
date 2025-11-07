@@ -23,24 +23,31 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📦 POST /api/products - Request received')
     const formData = await request.formData()
+    
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const category = formData.get('category') as string
     const featured = formData.get('featured') === 'true' || formData.get('featured') === '1'
     
+    console.log('📝 Form data:', { name, description, category, featured })
+    
     let image = null
     const imageFile = formData.get('image') as File
     
     if (imageFile && imageFile.size > 0) {
+      console.log('🖼️ Image file detected:', { name: imageFile.name, size: imageFile.size, type: imageFile.type })
       try {
         // Validate file type
         if (!imageFile.type.startsWith('image/')) {
+          console.error('❌ Invalid file type:', imageFile.type)
           return NextResponse.json({ error: 'Only image files are allowed' }, { status: 400 })
         }
 
         // Validate file size (max 5MB)
         if (imageFile.size > 5 * 1024 * 1024) {
+          console.error('❌ File too large:', imageFile.size)
           return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
         }
 
@@ -50,11 +57,13 @@ export async function POST(request: NextRequest) {
         // Clean filename
         const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
+        console.log('📤 Uploading image to Supabase...')
         // Upload to Supabase Storage
         image = await uploadImageToSupabase(buffer, filename, imageFile.type)
+        console.log('✅ Image uploaded:', image)
       } catch (uploadError) {
-        console.error('Error uploading file:', uploadError)
-        return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
+        console.error('❌ Error uploading file:', uploadError)
+        return NextResponse.json({ error: `Failed to upload image: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}` }, { status: 500 })
       }
     }
     
@@ -79,6 +88,7 @@ export async function POST(request: NextRequest) {
       data.price = parseFloat(priceValue)
     }
 
+    console.log('💾 Inserting product to database...')
     const supabase = getSupabaseClient()
     // Set timestamps manually to keep parity with Prisma defaults
     const now = new Date().toISOString()
@@ -100,13 +110,15 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Supabase insert error:', error)
-      return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+      console.error('❌ Supabase insert error:', error)
+      return NextResponse.json({ error: `Failed to create product: ${error.message}` }, { status: 500 })
     }
 
+    console.log('✅ Product created successfully:', inserted?.id)
     return NextResponse.json(inserted, { status: 201 })
   } catch (error) {
-    console.error('Error creating product:', error)
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+    console.error('❌ Error creating product:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: `Failed to create product: ${errorMessage}` }, { status: 500 })
   }
 }

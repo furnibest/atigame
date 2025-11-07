@@ -105,8 +105,11 @@ export default function AdminProducts() {
       setPreview(null)
       setEditId(null)
       fetchProducts()
+      alert('Produk berhasil disimpan!')
     } else {
-      alert('Gagal menyimpan produk!')
+      const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+      console.error('Error saving product:', errorData)
+      alert(`Gagal menyimpan produk! Error: ${errorData.error || res.statusText}`)
     }
     setLoading(false)
   }

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import '../../styles/admin.css'
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('')
@@ -23,23 +24,44 @@ export default function AdminLogin() {
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Login Admin</h2>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
+        <div className="login-header">
+          <h2>Admin Login</h2>
+          <p>Masuk ke panel administrasi</p>
+        </div>
+        
+        <div className="login-input-group">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            placeholder="Masukkan username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="login-input-group">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            placeholder="Masukkan password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
         {error && <div className="login-error">{error}</div>}
-        <button type="submit">Login</button>
+        
+        <button type="submit" className="login-submit-btn">
+          Masuk
+        </button>
+
+        <div className="login-footer">
+          <p>Atiga Meubel Admin Panel</p>
+        </div>
       </form>
     </div>
   )

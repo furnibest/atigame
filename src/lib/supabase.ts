@@ -8,6 +8,12 @@ export function getSupabaseClient(): SupabaseClient {
   const supabaseUrl = process.env.SUPABASE_URL as string | undefined
   const supabaseServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY) as string | undefined
 
+  // Debug logging
+  console.log('🔍 Environment Check:')
+  console.log('SUPABASE_URL:', supabaseUrl ? '✅ SET' : '❌ NOT SET')
+  console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ SET' : '❌ NOT SET')
+  console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ SET' : '❌ NOT SET')
+
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Supabase environment variables are not set. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY).')
   }
