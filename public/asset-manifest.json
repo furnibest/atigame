@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d13d224d.css",
+    "main.js": "/static/js/main.c0b3628c.js",
+    "static/media/herobahan.jpg": "/static/media/herobahan.323ee3db9b27938cbc5a.jpg",
+    "static/media/hero.jpg": "/static/media/hero.c43ceb6e0fe4056bc489.jpg",
+    "static/media/produkhero.jpg": "/static/media/produkhero.c43ceb6e0fe4056bc489.jpg",
+    "static/media/heroip.jpg": "/static/media/heroip.af7949ebaba7e21dc4b1.jpg",
+    "static/media/herokontak.jpg": "/static/media/herokontak.df08d23b593ab9a37efc.jpg",
+    "static/media/mejapayung.jpg": "/static/media/mejapayung.16b25cb7bdf246bcb9ef.jpg",
+    "static/media/SR 10.jpeg": "/static/media/SR 10.658ee331eeff347ac7d1.jpeg",
+    "static/media/rotan alami.jpg": "/static/media/rotan alami.26d261cfd97f3e75d609.jpg",
+    "static/media/Parasit.jpeg": "/static/media/Parasit.74952b27456d6dbf585f.jpeg",
+    "static/media/Kantata.jpeg": "/static/media/Kantata.4b34f01292eab8d63cfe.jpeg",
+    "static/media/Union.jpeg": "/static/media/Union.632e8083961b82c15d88.jpeg",
+    "static/media/Nagata.jpeg": "/static/media/Nagata.7ad09694e4e41bb8c684.jpeg",
+    "static/media/jati.jpg": "/static/media/jati.7c7e4f716dcaf5bc98f8.jpg",
+    "static/media/rotan sistesis.jpg": "/static/media/rotan sistesis.747e7d136d7fdbd29892.jpg",
+    "static/media/atigalogo.png": "/static/media/atigalogo.d888e08d522ead5d9ef7.png",
+    "index.html": "/index.html",
+    "main.d13d224d.css.map": "/static/css/main.d13d224d.css.map",
+    "main.c0b3628c.js.map": "/static/js/main.c0b3628c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d13d224d.css",
+    "static/js/main.c0b3628c.js"
+  ]
+}
