@@ -107,9 +107,48 @@ export default function AdminProducts() {
       fetchProducts()
       alert('Produk berhasil disimpan!')
     } else {
-      const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
-      console.error('Error saving product:', errorData)
-      alert(`Gagal menyimpan produk! Error: ${errorData.error || res.statusText}`)
+      let errorMessage = `HTTP ${res.status}: ${res.statusText || 'Unknown error'}`
+      try {
+        const errorData = await res.json()
+        console.error('Error saving product (JSON):', errorData)
+        console.error('Response status:', res.status)
+        
+        // Try multiple possible error fields
+        if (errorData.error) {
+          errorMessage = errorData.error
+        } else if (errorData.message) {
+          errorMessage = errorData.message
+        } else if (typeof errorData === 'string') {
+          errorMessage = errorData
+        } else if (Object.keys(errorData).length > 0) {
+          // If JSON has content but no error field, show the whole object
+          errorMessage = `Error: ${JSON.stringify(errorData)}`
+        } else {
+          // Empty JSON object, use status text
+          errorMessage = `HTTP ${res.status}: ${res.statusText || 'No error message provided'}`
+        }
+      } catch (jsonError) {
+        // If response is not JSON, try to get text
+        console.error('Error parsing JSON response:', jsonError)
+        try {
+          const errorText = await res.text()
+          console.error('Error saving product (Text):', errorText)
+          errorMessage = errorText || errorMessage
+        } catch (textError) {
+          console.error('Error saving product - cannot parse response:', textError)
+          console.error('Response status:', res.status, res.statusText)
+          errorMessage = `HTTP ${res.status}: ${res.statusText || 'Failed to parse error response'}`
+        }
+      }
+      // Show more helpful error message
+      let alertMessage = `Gagal menyimpan produk!\n\n${errorMessage}`
+      
+      // Add helpful hints for common errors
+      if (errorMessage.includes('SERVICE_ROLE_KEY') || errorMessage.includes('permission') || errorMessage.includes('fetch failed') || errorMessage.includes('Network error')) {
+        alertMessage = `Gagal menyimpan produk!\n\n${errorMessage}\n\n💡 SOLUSI:\n1. Jalankan: .\\add-service-role-key.ps1\n2. Atau edit .env.local - uncomment SUPABASE_SERVICE_ROLE_KEY\n3. Restart server (Ctrl+C lalu npm run dev)\n4. Coba upload produk lagi`
+      }
+      
+      alert(alertMessage)
     }
     setLoading(false)
   }

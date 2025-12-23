@@ -37,3 +37,6 @@ prisma/*.db-journal
 *.swp
 .idea/
 .vscode/
+
+# Uploaded files
+public/uploads/

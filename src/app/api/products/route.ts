@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseClient } from '@/lib/supabase'
-import { uploadImageToSupabase } from '@/lib/supabase'
+import { prisma } from '@/lib/prisma'
+import { uploadImageToLocal } from '@/lib/fileStorage'
 
 export async function GET() {
   try {
-    const supabase = getSupabaseClient()
-    const { data, error } = await supabase
-      .from('Product')
-      .select('*')
-      .order('createdAt', { ascending: false })
-
-    if (error) {
-      console.error('Supabase fetch error:', error)
-      return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
-    }
-    return NextResponse.json(data || [])
+    const products = await prisma.product.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+    return NextResponse.json(products)
   } catch (error) {
     console.error('Error fetching products:', error)
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
@@ -31,6 +26,11 @@ export async function POST(request: NextRequest) {
     const category = formData.get('category') as string
     const featured = formData.get('featured') === 'true' || formData.get('featured') === '1'
     
+    // Validate required fields
+    if (!name || name.trim() === '') {
+      return NextResponse.json({ error: 'Nama produk wajib diisi' }, { status: 400 })
+    }
+    
     console.log('📝 Form data:', { name, description, category, featured })
     
     let image = null
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     
     if (imageFile && imageFile.size > 0) {
       console.log('🖼️ Image file detected:', { name: imageFile.name, size: imageFile.size, type: imageFile.type })
+      
       try {
         // Validate file type
         if (!imageFile.type.startsWith('image/')) {
@@ -57,65 +58,35 @@ export async function POST(request: NextRequest) {
         // Clean filename
         const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
-        console.log('📤 Uploading image to Supabase...')
-        // Upload to Supabase Storage
-        image = await uploadImageToSupabase(buffer, filename, imageFile.type)
+        console.log('📤 Uploading image to local storage...')
+        // Upload to local storage
+        image = await uploadImageToLocal(buffer, filename, imageFile.type)
         console.log('✅ Image uploaded:', image)
       } catch (uploadError) {
         console.error('❌ Error uploading file:', uploadError)
-        return NextResponse.json({ error: `Failed to upload image: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}` }, { status: 500 })
+        const errorMsg = uploadError instanceof Error ? uploadError.message : 'Unknown error'
+        return NextResponse.json({ error: `Failed to upload image: ${errorMsg}` }, { status: 500 })
       }
     }
     
-    const data: {
-      name: string
-      description: string
-      image: string | null
-      category: string
-      featured: boolean
-      price: number
-    } = {
-      name,
-      description,
-      image,
-      category,
-      featured,
-      price: 0
-    }
-
+    // Get price if provided
     const priceValue = formData.get('price') as string | null
-    if (priceValue && !isNaN(parseFloat(priceValue))) {
-      data.price = parseFloat(priceValue)
-    }
+    const price = priceValue && !isNaN(parseFloat(priceValue)) ? parseFloat(priceValue) : 0
 
-    console.log('💾 Inserting product to database...')
-    const supabase = getSupabaseClient()
-    // Set timestamps manually to keep parity with Prisma defaults
-    const now = new Date().toISOString()
-    const insertPayload: {
-      name: string
-      description: string
-      image: string | null
-      category: string
-      featured: boolean
-      price: number
-      createdAt: string
-      updatedAt: string
-    } = { ...data, createdAt: now, updatedAt: now }
+    console.log('💾 Inserting product to MySQL database...')
+    const product = await prisma.product.create({
+      data: {
+        name,
+        description: description || null,
+        price,
+        image,
+        category: category || 'Semua Produk',
+        featured
+      }
+    })
 
-    const { data: inserted, error } = await supabase
-      .from('Product')
-      .insert(insertPayload)
-      .select('*')
-      .single()
-
-    if (error) {
-      console.error('❌ Supabase insert error:', error)
-      return NextResponse.json({ error: `Failed to create product: ${error.message}` }, { status: 500 })
-    }
-
-    console.log('✅ Product created successfully:', inserted?.id)
-    return NextResponse.json(inserted, { status: 201 })
+    console.log('✅ Product created successfully:', product.id)
+    return NextResponse.json(product, { status: 201 })
   } catch (error) {
     console.error('❌ Error creating product:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

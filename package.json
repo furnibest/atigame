@@ -4,19 +4,26 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true next build",
-    "build:prod": "next build && next export"
+    "build:prod": "next build && next export",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.3",
+    "@prisma/client": "^6.19.1",
     "@supabase/supabase-js": "^2.55.0",
+    "mysql2": "^3.16.0",
     "next": "15.4.3",
+    "prisma": "^6.19.1",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadImageToSupabase, deleteImageByPublicUrl, getSupabaseClient } from '@/lib/supabase'
+import { prisma } from '@/lib/prisma'
+import { uploadImageToLocal, deleteImageFromLocal } from '@/lib/fileStorage'
 
 export async function GET(
   request: NextRequest,
@@ -7,14 +8,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const supabase = getSupabaseClient()
-    const { data: product, error } = await supabase
-      .from('Product')
-      .select('*')
-      .eq('id', parseInt(id))
-      .single()
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(id) }
+    })
     
-    if (error || !product) {
+    if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
     
@@ -31,35 +29,40 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const supabase = getSupabaseClient()
-    const { data: existing } = await supabase
-      .from('Product')
-      .select('*')
-      .eq('id', parseInt(id))
-      .single()
+    const productId = parseInt(id)
+    
+    // Check if product exists
+    const existing = await prisma.product.findUnique({
+      where: { id: productId }
+    })
+    
+    if (!existing) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+    }
+    
     const formData = await request.formData()
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const category = formData.get('category') as string
     const featured = formData.get('featured') === 'true' || formData.get('featured') === '1'
     
-    const data: {
-      name: string;
-      description: string;
-      category: string;
-      featured: boolean;
-      image?: string;
+    const updateData: {
+      name?: string;
+      description?: string | null;
+      category?: string;
+      featured?: boolean;
+      image?: string | null;
       price?: number;
     } = {
       name,
-      description,
+      description: description || null,
       category,
       featured
     }
 
     const priceValue = formData.get('price') as string | null
     if (priceValue && !isNaN(parseFloat(priceValue))) {
-      data.price = parseFloat(priceValue)
+      updateData.price = parseFloat(priceValue)
     }
     
     const imageFile = formData.get('image') as File
@@ -81,31 +84,23 @@ export async function PUT(
         // Clean filename
         const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
-        // Upload to Supabase Storage
-        const newUrl = await uploadImageToSupabase(buffer, filename, imageFile.type)
+        // Upload to local storage
+        const newUrl = await uploadImageToLocal(buffer, filename, imageFile.type)
         // Delete old image if exists
-        if (existing?.image) {
-          try { await deleteImageByPublicUrl(existing.image) } catch {}
+        if (existing.image) {
+          try { await deleteImageFromLocal(existing.image) } catch {}
         }
-        data.image = newUrl
+        updateData.image = newUrl
       } catch (uploadError) {
         console.error('Error uploading file:', uploadError)
         return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
       }
     }
     
-    const now = new Date().toISOString()
-    const { data: updated, error } = await supabase
-      .from('Product')
-      .update({ ...data, updatedAt: now })
-      .eq('id', parseInt(id))
-      .select('*')
-      .single()
-
-    if (error) {
-      console.error('Supabase update error:', error)
-      return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
-    }
+    const updated = await prisma.product.update({
+      where: { id: productId },
+      data: updateData
+    })
     
     return NextResponse.json(updated)
   } catch (error) {
@@ -120,23 +115,32 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const supabase = getSupabaseClient()
-    const { data: product } = await supabase
-      .from('Product')
-      .select('image')
-      .eq('id', parseInt(id))
-      .single()
-    if (product?.image) {
-      try { await deleteImageByPublicUrl(product.image) } catch {}
+    const productId = parseInt(id)
+    
+    // Get product to check if it exists and get image URL
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      select: { image: true }
+    })
+    
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
-    const { error } = await supabase
-      .from('Product')
-      .delete()
-      .eq('id', parseInt(id))
-    if (error) {
-      console.error('Supabase delete error:', error)
-      return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
+    
+    // Delete image from storage if exists
+    if (product.image) {
+      try { 
+        await deleteImageFromLocal(product.image) 
+      } catch (imageError) {
+        console.error('Error deleting image from storage:', imageError)
+        // Continue with product deletion even if image deletion fails
+      }
     }
+    
+    // Delete product from database
+    await prisma.product.delete({
+      where: { id: productId }
+    })
     
     return NextResponse.json({ message: 'Product deleted' })
   } catch (error) {
