@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { uploadImageToLocal } from '@/lib/fileStorage'
+import { uploadImageToSupabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
     // Clean filename
     const filename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
     
-    // Upload to local storage
-    const imageUrl = await uploadImageToLocal(buffer, filename, file.type)
+    // Upload to Supabase Storage (Vercel FS is read-only)
+    const imageUrl = await uploadImageToSupabase(buffer, filename, file.type)
     
     return NextResponse.json({ 
       success: true, 

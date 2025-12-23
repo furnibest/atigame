@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { uploadImageToLocal, deleteImageFromLocal } from '@/lib/fileStorage'
+import { uploadImageToSupabase, deleteImageByPublicUrl } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
@@ -84,11 +84,11 @@ export async function PUT(
         // Clean filename
         const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
-        // Upload to local storage
-        const newUrl = await uploadImageToLocal(buffer, filename, imageFile.type)
+        // Upload to Supabase Storage
+        const newUrl = await uploadImageToSupabase(buffer, filename, imageFile.type)
         // Delete old image if exists
         if (existing.image) {
-          try { await deleteImageFromLocal(existing.image) } catch {}
+          try { await deleteImageByPublicUrl(existing.image) } catch {}
         }
         updateData.image = newUrl
       } catch (uploadError) {
@@ -130,7 +130,7 @@ export async function DELETE(
     // Delete image from storage if exists
     if (product.image) {
       try { 
-        await deleteImageFromLocal(product.image) 
+        await deleteImageByPublicUrl(product.image) 
       } catch (imageError) {
         console.error('Error deleting image from storage:', imageError)
         // Continue with product deletion even if image deletion fails

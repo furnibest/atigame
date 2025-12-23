@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { uploadImageToLocal } from '@/lib/fileStorage'
+import { uploadImageToSupabase } from '@/lib/supabase'
 
 export async function GET() {
   try {
@@ -58,9 +58,8 @@ export async function POST(request: NextRequest) {
         // Clean filename
         const filename = imageFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
         
-        console.log('📤 Uploading image to local storage...')
-        // Upload to local storage
-        image = await uploadImageToLocal(buffer, filename, imageFile.type)
+        console.log('📤 Uploading image to Supabase Storage...')
+        image = await uploadImageToSupabase(buffer, filename, imageFile.type)
         console.log('✅ Image uploaded:', image)
       } catch (uploadError) {
         console.error('❌ Error uploading file:', uploadError)
