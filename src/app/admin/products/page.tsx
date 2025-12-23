@@ -53,24 +53,14 @@ export default function AdminProducts() {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      // Add cache-busting to ensure fresh data
-      const res = await fetch(`${API_URL}?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      })
+      const res = await fetch(API_URL)
       const data = await res.json()
-      console.log('📦 Fetched products:', data)
       if (Array.isArray(data)) {
         setProducts(data)
-        console.log(`✅ Loaded ${data.length} products`)
       } else {
-        console.warn('⚠️ Response is not an array:', data)
         setProducts([])
       }
-    } catch (error) {
-      console.error('❌ Error fetching products:', error)
+    } catch {
       setProducts([])
     }
   }
@@ -111,21 +101,15 @@ export default function AdminProducts() {
     }
     
     if (res.ok) {
-      const savedProduct = await res.json().catch(() => null)
-      console.log('✅ Product saved successfully:', savedProduct)
       setForm({ name: '', description: '', image: null, category: 'Semua Produk', featured: false })
       setPreview(null)
       setEditId(null)
-      // Refresh products list
-      await fetchProducts()
+      fetchProducts()
       alert('Produk berhasil disimpan!')
     } else {
       const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
-      console.error('❌ Error saving product:', errorData)
-      console.error('❌ Response status:', res.status)
-      console.error('❌ Response statusText:', res.statusText)
-      const errorMessage = errorData.error || errorData.message || res.statusText || 'Unknown error'
-      alert(`Gagal menyimpan produk!\n\nError: ${errorMessage}\n\nSilakan cek console untuk detail lebih lanjut.`)
+      console.error('Error saving product:', errorData)
+      alert(`Gagal menyimpan produk! Error: ${errorData.error || res.statusText}`)
     }
     setLoading(false)
   }

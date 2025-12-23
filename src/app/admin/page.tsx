@@ -1,25 +1,25 @@
-"use client";
+'use client'
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import "../../styles/admin.css";
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import '../../styles/admin.css'
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username === "admin" && password === "amd123") {
+    e.preventDefault()
+    if (username === 'admin' && password === 'admin123') {
       // Set login status in localStorage
-      localStorage.setItem("adminLoggedIn", "true");
-      router.push("/admin/dashboard");
+      localStorage.setItem('adminLoggedIn', 'true')
+      router.push('/admin/dashboard')
     } else {
-      setError("Username atau password salah");
+      setError('Username atau password salah')
     }
-  };
+  }
 
   return (
     <div className="login-container">
@@ -28,7 +28,7 @@ export default function AdminLogin() {
           <h2>Admin Login</h2>
           <p>Masuk ke panel administrasi</p>
         </div>
-
+        
         <div className="login-input-group">
           <label htmlFor="username">Username</label>
           <input
@@ -36,7 +36,7 @@ export default function AdminLogin() {
             type="text"
             placeholder="Masukkan username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={e => setUsername(e.target.value)}
             required
           />
         </div>
@@ -48,13 +48,13 @@ export default function AdminLogin() {
             type="password"
             placeholder="Masukkan password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
           />
         </div>
 
         {error && <div className="login-error">{error}</div>}
-
+        
         <button type="submit" className="login-submit-btn">
           Masuk
         </button>
@@ -64,5 +64,5 @@ export default function AdminLogin() {
         </div>
       </form>
     </div>
-  );
+  )
 }
